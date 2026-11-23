@@ -85,4 +85,4 @@ src-tauri/gen/android/   Tauri 生成的 Android 工程（Kotlin 侧在 app/src/
 
 ## 许可
 
-MIT，见 [LICENSE](LICENSE)。传输协议源自 Snapdrop（MIT）。
+以 [GNU GPL v3.0](LICENSE) 发布。传输协议思路源自 [Snapdrop](https://github.com/RobinLinus/snapdrop)（MIT），本仓库为独立实现。
