@@ -1,0 +1,31 @@
+# Dependencies and build output
+node_modules/
+dist/
+target/
+target-*/
+.vite/
+
+# Machine-local dev scaffolding
+android-env.sh
+vibe_images/
+
+# Android / Gradle generated output
+src-tauri/gen/android/.gradle/
+src-tauri/gen/android/build/
+src-tauri/gen/android/app/build/
+src-tauri/gen/android/app/src/main/assets/
+src-tauri/gen/android/Lib/
+src-tauri/gen/android/Scripts/
+src-tauri/gen/android/local.properties
+src-tauri/gen/android/.idea/
+*.iml
+src-tauri/gen/schemas/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Logs and OS junk
+*.log
+.DS_Store
+Thumbs.db

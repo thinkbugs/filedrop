@@ -1,0 +1,77 @@
+[package]
+name = "filedrop"
+version = "1.0.0"
+description = "FileDrop — cross-platform LAN file transfer"
+authors = ["FileDrop"]
+edition = "2021"
+
+[lib]
+name = "filedrop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-notification = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+axum = { version = "0.7", features = ["ws", "multipart"] }
+tower-http = { version = "0.5", features = ["fs"] }
+futures-util = "0.3"
+qrcode = "0.14"
+uuid = { version = "1", features = ["v4"] }
+base64 = "0.22"
+# Discovery of other FileDrop instances on the same LAN.
+mdns-sd = "0.11"
+if-addrs = "0.13"
+
+[dev-dependencies]
+tokio-tungstenite = "0.24"
+
+# The second instance hands its command line to the one already in the tray.
+# Cargo only matches platform cfgs, so this is the desktop negation rather than
+# tauri's own `cfg(desktop)`.
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2"
+
+[target.'cfg(target_os = "android")'.dependencies]
+# On-demand Android intents (open a link, open a received file through the
+# app's FileProvider) and foreground-service start/stop are driven from Rust
+# through the webview's JNI handle. Version 0.21 matches what wry already
+# links against, so there is only one jni in the graph.
+jni = "0.21"
+# `bundle.resources` land inside the APK's asset store, which std::fs cannot
+# read, so the receive server's phone page is embedded here and unpacked to the
+# app data dir at startup. Only needed on Android; the desktop finds it in the
+# bundle/source tree, so the binary stays lean there.
+include_dir = "0.7"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.52"
+# Toasts that report a click. The notification plugin shows toasts through this
+# same crate but never waits for the activation event.
+notify-rust = "4"
+# Clears the Windows 11 accent border on the window; tauri already pulls this
+# exact version into the graph, so adding it here costs no extra compilation.
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Graphics_Dwm", "Win32_UI_Shell"] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+# Size-tuned release profile. The default `tauri android build --debug` ships the
+# Rust backend unoptimized with full debug symbols and keeps them in the APK
+# (see the gradle debug buildType), which is what ballooned libfiledrop_lib.so to
+# ~200 MB per ABI. Release + strip + LTO drops that to a few MB.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

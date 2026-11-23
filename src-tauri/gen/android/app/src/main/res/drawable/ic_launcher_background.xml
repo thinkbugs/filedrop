@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The launcher crops adaptive icons to its own shape, which exposes the area
+     outside the logo's own rounded square. Painting the icon's own green
+     gradient there keeps a squircle mask from showing white corners. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="315"
+        android:startColor="#FF04E16F"
+        android:endColor="#FF2CB96A" />
+</shape>

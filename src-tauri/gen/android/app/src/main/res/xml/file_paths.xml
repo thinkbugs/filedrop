@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Received files default to app_data_dir, which lives under the app's
+       private files directory; expose that whole subtree so "open file" can
+       hand a content:// URI to another app. -->
+  <files-path name="app_files" path="." />
+  <external-path name="my_images" path="." />
+  <external-files-path name="external_files" path="." />
+  <cache-path name="my_cache_images" path="." />
+  <!-- The fallback receive folder sits at the data directory itself
+       (/data/user/0/<pkg>/FileDrop), which is above files/, so none of the
+       roots above can map it: without this line getUriForFile throws and
+       "open" fails for exactly the files that arrived while shared storage
+       was unavailable. -->
+  <root-path name="app_data" path="." />
+</paths>

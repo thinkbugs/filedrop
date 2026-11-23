@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>FileDrop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#080b11">
+    <meta name="color-scheme" content="dark">
+    <meta name="apple-mobile-web-app-capable" content="no">
+    <meta name="apple-mobile-web-app-title" content="FileDrop">
+    <meta name="description" content="FileDrop · 在同一个局域网里，把文件直接送到这台电脑。">
+    <meta name="author" content="FileDrop">
+    <link rel="icon" sizes="96x96" href="images/logo_128.png">
+    <link rel="shortcut icon" href="images/logo_128.png">
+    <link rel="apple-touch-icon" href="images/logo_128.png">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body translate="no">
+    <div class="backdrop" aria-hidden="true">
+        <span class="glow glow-a"></span>
+        <span class="glow glow-b"></span>
+    </div>
+
+    <header class="row-reverse">
+        <a href="#about" class="icon-button" title="关于 FileDrop">
+            <svg class="icon">
+                <use xlink:href="#info-outline" />
+            </svg>
+        </a>
+        <a href="#" id="notification" class="icon-button" title="开启通知" hidden>
+            <svg class="icon">
+                <use xlink:href="#notifications" />
+            </svg>
+        </a>
+        <a href="#" id="install" class="icon-button" title="添加到主屏幕" hidden>
+            <svg class="icon">
+                <use xlink:href="#homescreen" />
+            </svg>
+        </a>
+    </header>
+
+    <div class="brand column center">
+        <span class="brand-mark">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3.2c3.4 3.6 6.2 6.9 6.2 10.1A6.2 6.2 0 0 1 12 19.5a6.2 6.2 0 0 1-6.2-6.2C5.8 10.1 8.6 6.8 12 3.2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M12 9.5v5.6M9.6 12.6 12 15l2.4-2.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </span>
+        <h1>FileDrop</h1>
+        <p class="tagline">选一台设备，把文件送过去</p>
+    </div>
+
+    <!-- Peers -->
+    <x-peers class="center"></x-peers>
+    <x-no-peers class="column center">
+        <span class="radar" aria-hidden="true"></span>
+        <h2>正在寻找同一网络里的设备</h2>
+        <p>在电脑上打开 FileDrop，它会出现在这里</p>
+    </x-no-peers>
+    <x-instructions desktop="点击设备发送文件 · 长按可发送文字" mobile="点按设备发送文件 · 长按可发送文字"></x-instructions>
+
+    <footer class="column center">
+        <div id="displayName" placeholder="FileDrop"></div>
+        <div class="font-body2">同一局域网内的设备可以发现你</div>
+    </footer>
+
+    <!-- Receive Dialog -->
+    <x-dialog id="receiveDialog">
+        <x-background class="full center">
+            <x-paper shadow="2">
+                <h3>收到文件</h3>
+                <div class="font-subheading" id="fileName">文件名</div>
+                <div class="font-body2" id="fileSize"></div>
+                <div class='preview' style="visibility: hidden;">
+                    <img id='img-preview' src="" alt="">
+                </div>
+                <div class="row">
+                    <label for="autoDownload" class="grow">保存前询问位置</label>
+                    <input type="checkbox" id="autoDownload" checked="">
+                </div>
+                <div class="row-reverse">
+                    <a class="button" close id="download" title="保存文件" autofocus>保存</a>
+                    <button class="button ghost" close>关闭</button>
+                </div>
+            </x-paper>
+        </x-background>
+    </x-dialog>
+
+    <!-- Send Text Dialog -->
+    <x-dialog id="sendTextDialog">
+        <form action="#">
+            <x-background class="full center">
+                <x-paper shadow="2">
+                    <h3>发送文字</h3>
+                    <div id="textInput" class="textarea" role="textbox" placeholder="输入要发送的内容" autocomplete="off" autofocus contenteditable></div>
+                    <div class="row-reverse">
+                        <button class="button" type="submit" close>发送</button>
+                        <button class="button ghost" type="button" close>取消</button>
+                    </div>
+                </x-paper>
+            </x-background>
+        </form>
+    </x-dialog>
+
+    <!-- Receive Text Dialog -->
+    <x-dialog id="receiveTextDialog">
+        <x-background class="full center">
+            <x-paper shadow="2">
+                <h3>收到文字</h3>
+                <div class="font-subheading" id="text"></div>
+                <div class="row-reverse">
+                    <button class="button" id="copy" close autofocus>复制</button>
+                    <button class="button ghost" close>关闭</button>
+                </div>
+            </x-paper>
+        </x-background>
+    </x-dialog>
+
+    <!-- Toast -->
+    <div class="toast-container full center">
+        <x-toast class="row" shadow="1" id="toast">传输完成</x-toast>
+    </div>
+
+    <!-- About Page -->
+    <x-about id="about" class="full center column">
+        <section class="center column fade-in">
+            <header class="row-reverse">
+                <a href="#" class="close icon-button">
+                    <svg class="icon">
+                        <use xlink:href="#close" />
+                    </svg>
+                </a>
+            </header>
+            <span class="brand-mark large" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 3.2c3.4 3.6 6.2 6.9 6.2 10.1A6.2 6.2 0 0 1 12 19.5a6.2 6.2 0 0 1-6.2-6.2C5.8 10.1 8.6 6.8 12 3.2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                    <path d="M12 9.5v5.6M9.6 12.6 12 15l2.4-2.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            <h1>FileDrop</h1>
+            <div class="font-subheading">局域网文件传送</div>
+            <p class="about-note">文件只在本机与这台设备之间传输，不经过互联网。</p>
+            <p class="about-fine">传输协议来自 <a href="https://github.com/RobinLinus/snapdrop" target="_blank" rel="noreferrer">Snapdrop</a>（MIT License）。</p>
+        </section>
+        <x-background></x-background>
+    </x-about>
+
+    <!-- SVG Icon Library -->
+    <svg style="display: none;">
+        <symbol id=desktop-mac viewBox="0 0 24 24">
+            <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"></path>
+        </symbol>
+        <symbol id=phone-iphone viewBox="0 0 24 24">
+            <path d="M15.5 1h-8C6.12 1 5 2.12 5 3.5v17C5 21.88 6.12 23 7.5 23h8c1.38 0 2.5-1.12 2.5-2.5v-17C18 2.12 16.88 1 15.5 1zm-4 21c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5-4H7V4h9v14z"></path>
+        </symbol>
+        <symbol id=tablet-mac viewBox="0 0 24 24">
+            <path d="M18.5 0h-14C3.12 0 2 1.12 2 2.5v19C2 22.88 3.12 24 4.5 24h14c1.38 0 2.5-1.12 2.5-2.5v-19C21 1.12 19.88 0 18.5 0zm-7 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm7.5-4H4V3h15v16z"></path>
+        </symbol>
+        <symbol id=info-outline viewBox="0 0 24 24">
+            <path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"></path>
+        </symbol>
+        <symbol id=close viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+        </symbol>
+        <g id="notifications">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+        </g>
+        <symbol id="homescreen">
+            <path fill="none" d="M0 0h24v24H0V0z" />
+            <path d="M18 1.01L8 1c-1.1 0-2 .9-2 2v3h2V5h10v14H8v-1H6v3c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM10 15h2V8H5v2h3.59L3 15.59 4.41 17 10 11.41z" />
+        </symbol>
+    </svg>
+
+    <!-- Scripts -->
+    <script src="scripts/network.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/clipboard.js" async></script>
+    <!-- Sounds -->
+    <audio id="blop" autobuffer="true">
+        <source src="sounds/blop.mp3" type="audio/mpeg">
+        <source src="sounds/blop.ogg" type="audio/ogg">
+    </audio>
+    <noscript>
+        <x-noscript class="full center column">
+            <h1>需要 JavaScript</h1>
+            <h3>FileDrop 依赖 JavaScript 运行</h3>
+        </x-noscript>
+    </noscript>
+</body>
+
+</html>
